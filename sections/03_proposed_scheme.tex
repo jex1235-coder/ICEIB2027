@@ -91,7 +91,7 @@ Algorithm~\ref{alg:agent} formalizes the end-to-end decision and verification lo
 \Else
     \State $R_{\text{core}} \gets R_{\text{raw}}$
 \EndIf
-\State $R \gets \text{AppendDeterministic}(R_{\text{core}}, \text{LiveEvents}, \text{HolidayCaveat}, \text{Tag})$
+\State $R \gets \text{AppendFixed}(R_{\text{core}}, \text{Events}, \text{HolidayNote}, \text{Tag})$
 \State \Return $R$
 \end{algorithmic}
 \end{algorithm}
