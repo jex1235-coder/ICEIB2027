@@ -1,0 +1,13 @@
+\section{Conclusion and Future Work}\label{sec:conclusion}
+
+This paper presented an explainable, tool-augmented agent for short-term congestion prediction and departure advisory on Taiwan National Freeway No.~5. By enforcing a strict division of labor---where domain-cleaned ETC gantry telemetry, \texttt{HistGradientBoosting} regressors, isotonic probability calibrators, a 43-entry verified traffic-control knowledge base, and live incident feeds supply deterministic facts, while the LLM focuses solely on query parsing and natural-language rendering under \texttt{check\_numbers} and template-fallback guardrails---the system eliminates numerical hallucination while remaining fully operational even without an active LLM endpoint.
+
+Multi-year evaluation across 2025 (365 days) and out-of-sample 2026 (311 days) demonstrates consistent speed MAE improvements over persistence on weekdays and regular weekends, graceful degradation under up to 15~minutes of telemetry latency, and 100\% deterministic guardrail compliance across 72 frozen agent test cases. Equally important, our rigorous evaluation exposes critical operational boundaries: long-holiday speed gains are modest and year-dependent; the deployed classifier does not beat persistence for event-level early warning under fixed alert budgets; and calibrated probabilities still exhibit overconfidence in rare high-risk bins across years.
+
+\subsection{Limitations and Future Work}
+Several limitations define clear priorities for future research:
+\begin{enumerate}
+    \item \textbf{Modeling and external signals:} Our study evaluated a shared tabular GBM without benchmarking against deep spatiotemporal architectures (e.g., Graph WaveNet or ST-Transformer) and without incorporating weather, non-recurrent accident records, or scheduled local events. Integrating multimodal features and periodic retraining pipelines may improve holiday robustness.
+    \item \textbf{Advisory outcome validation and human evaluation:} The departure-window rule minimizes rounded calibrated congestion risk, but its actual reduction in traveler journey time has not yet been empirically validated. Likewise, systematic human evaluation on free-form queries is needed to quantify the communicative benefit of LLM prose over deterministic templates.
+    \item \textbf{Knowledge-base and scope extensions:} Future iterations should incorporate announcement publication timestamps to prevent temporal leakage in historical replays, support vehicle-type and occupancy-exemption clarifications for HOV enforcement, verify gantry-code-to-mileage mappings against official specifications, and expand corridor coverage beyond Freeway No.~5.
+\end{enumerate}

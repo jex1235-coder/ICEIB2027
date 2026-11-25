@@ -1,0 +1,27 @@
+\section{Introduction}\label{sec:intro}
+
+\subsection{Background and Motivation}
+Electronic Toll Collection (ETC) gantry networks generate continuous, high-resolution roadside telemetry that supports real-time highway traffic monitoring and short-term forecasting. In Taiwan, National Freeway No.~5 (Chiang Wei-shui Memorial Freeway) serves as the primary arterial corridor linking the Taipei metropolitan area with Yilan County through the 12.9~km Hsuehshan Tunnel. Because the corridor has limited alternative routes and concentrated weekend and holiday travel demand, severe recurrent and holiday congestion frequently forms on northbound return approaches and tunnel bottlenecks. According to the Freeway Bureau, Ministry of Transportation and Communications (MOTC), average daily national freeway traffic during the 2026 Lunar New Year holiday (Days 1--6) reached 124.0 million vehicle-kilometers, approximately $1.3\times$ the weekday annual average of 93 million vehicle-kilometers~\cite{freeway2026cny}.
+
+To assist travelers, official platforms such as the Freeway 1968 application provide real-time road conditions, travel-time forecasts, and departure-window recommendations. Concurrently, large language models (LLMs) have enabled conversational interfaces capable of translating complex system outputs into natural-language advisories. However, bridging roadside telemetry, predictive modeling, and actionable traveler communication in a transparent and verifiable workflow remains challenging.
+
+\subsection{Problem Statement and Research Challenges}
+Deploying a trustworthy short-term congestion advisory system on open roadside data exposes four practical gaps:
+\begin{enumerate}
+    \item \textbf{Isolated numerical outputs lack decision context:} Conventional forecasting models emit scalar speeds (e.g., 42~km/h) without linking predictions to active traffic-control regulations---such as High-Occupancy Vehicle (HOV) mandates or ramp closures---or live traffic incidents, nor do they communicate model limitations.
+    \item \textbf{Domain data-quality pitfalls:} In Taiwan's open TDCS M05A 5-minute gantry dataset~\cite{tdcs_m05a}, intervals with zero passing vehicles are recorded with both \textit{speed = 0} and \textit{volume = 0}. Naive ingestion treats these records as severe standstill congestion (0~km/h), corrupting both training targets and congestion labels.
+    \item \textbf{Numerical hallucination in LLM agents:} General-purpose LLMs are unreliable at quantitative forecasting and frequently fabricate or alter numerical values, omit mandatory caveats, or hallucinate unsupported road segments when left unconstrained.
+    \item \textbf{Misleading evaluation protocols and opaque benchmarks:} Official services do not publish reproducible error metrics. In academic evaluations, sample-level F1 or ROC-AUC scores on imbalanced 5-minute series can appear deceptively high due to prolonged already-congested or free-flow regimes, masking poor early-warning performance when traffic is still free-flowing.
+\end{enumerate}
+
+\subsection{Main Contributions}
+Rather than claiming superiority over official navigation apps or pursuing deep-learning leaderboard records, this study focuses on \textit{verifiable, explainable, and reproducible} decision support on Taiwan National Freeway No.~5 (10 mainline segments). Our main contributions are fourfold:
+\begin{itemize}
+    \item \textbf{Domain Data-Aware Ingestion and Live Alignment:} We establish deterministic preprocessing rules that distinguish no-vehicle records ($v=0, q=0$) from true congestion, bound forward-filling to 15~minutes, and empirically verify a $-3$-minute slot alignment between live \texttt{ETagPairLive.xml} and historical M05A archives (100\% match across 3,418 records).
+    \item \textbf{``Prediction-as-a-Tool'' Guardrailed Agent Architecture:} All speed predictions, isotonic-calibrated risk probabilities, regulatory rule matches, and departure recommendations are computed deterministically by backend Python tools. The LLM (\texttt{qwen3-14b}) is restricted to query parsing and prose generation, protected by \texttt{check\_numbers} and \texttt{required\_missing} verification with automatic fallback to deterministic templates, plus programmatic post-appending of live incidents and holiday caveats.
+    \item \textbf{Multi-Year Reproducible Evaluation with Fixed-Budget Event Analysis:} We evaluate a 2024-trained model across full-year 2025 (365 days) and out-of-sample 2026 (311 days) using day-level block bootstrap 95\% confidence intervals, latency degradation tests, and a fixed-alert-budget event-level early-warning protocol.
+    \item \textbf{Transparent Reporting of Negative and Mixed Findings:} We explicitly document where machine learning helps (weekday and regular-weekend speed MAE) and where it does not (fragile holiday gains, early-warning parity with persistence, and high-probability calibration drift in 2026), reinforcing scientific rigor in applied ITS agents.
+\end{itemize}
+
+\subsection{Paper Organization}
+Section~\ref{sec:related} reviews related work in traffic forecasting and LLM-based transportation agents. Section~\ref{sec:method} formulates the problem and details our five-module architecture and guardrailed algorithm. Section~\ref{sec:experiments} presents multi-year quantitative evaluations and end-to-end agent experiments. Section~\ref{sec:conclusion} concludes with system limitations and future research directions.
